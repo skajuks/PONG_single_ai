@@ -1,16 +1,23 @@
 import pygame, sys, time, winsound, math
 from pygame.locals import *
 import random
-import ui
+#import ui
 pygame.init()
 pygame.mixer.init()
+pygame.font.init()
 WINDOW_HEIGHT = 600
 WINDOW_WIDTH = 1024
 
 clock = pygame.time.Clock()
 
-SCORE_1 = 0
-SCORE_2 = 0
+SCORE_1 = 8
+SCORE_2 = 8
+
+################ TODO ##########
+# CREATE SERIES POINT (PLAYER CAN ONLY WIN IF HES LEADING BY 2)
+
+
+
 
 #player 1
 UP_PLAYER_1 = False
@@ -26,13 +33,13 @@ STATIC_2 = True
 UL = 0 # up and left
 DL = 1 # down and left
 UR = 2 # up and right
-DR = 3 # down and right
+DR = 3 # down and right s
 music = pygame.mixer.music.load(r'C:\Users\roberts\Desktop\PONG\resources\music.mp3')
 
 
 WHITE = (255,255,255)
 BLACK = (0,0,0)
-RED = (219, 31, 31)
+RED = (177, 3, 252)
 BLUE = (31, 141, 219)
 
 GAMEWINDOW = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))         #set w and h values for main game window
@@ -45,34 +52,43 @@ class Paddle(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)    
         self.player = player
         self.image = pygame.Surface([40,100])       # draws the paddles
+        self.image_out = pygame.Surface([45,105])
         #self.image.fill(WHITE)
         self.rect = self.image.get_rect()
+        self.rect2 = self.image_out.get_rect()
         self.speed = 8
     #=-=-=-= paddle for each player =-=-=-=-=-=
     #left
         if self.player == 1:
             self.rect.centerx = GAMEWINDOW.get_rect().left
             self.rect.centerx += 50
+            self.rect2.centerx = self.rect.centerx
     #right        
         elif self.player == 2:
             self.rect.centerx = GAMEWINDOW.get_rect().right     # alligns the paddles for both player  1 and 2, also centers them to the screen y
             self.rect.centerx -=50
-        self.rect.centery = GAMEWINDOW.get_rect().centery    
+            self.rect2.centerx = self.rect.centerx
+        self.rect.centery = GAMEWINDOW.get_rect().centery
+        self.rect2.centery = self.rect.centery    
 
     def movePaddle(self):
         if self.player == 1:
             if UP_PLAYER_1 == True and self.rect.y > 5:
                 self.rect.y -= self.speed
+                self.rect2.y = self.rect.y - 2.5
             elif DOWN_PLAYER_1 == True and self.rect.bottom < WINDOW_HEIGHT - 5:        # moves the paddles depending on paddle.speed 
                 self.rect.y += self.speed
+                self.rect2.y = self.rect.y - 2.5
             elif STATIC_1 == True:
                 pass        
 
         if self.player == 2:
             if UP_PLAYER_2 == True and self.rect.y > 5:
                 self.rect.y -= self.speed
+                self.rect2.y = self.rect.y - 2.5
             elif DOWN_PLAYER_2 == True and self.rect.bottom < WINDOW_HEIGHT - 5:
                 self.rect.y += self.speed
+                self.rect2.y = self.rect.y - 2.5
             elif STATIC_2 == True:
                 pass
         #self.update()      
@@ -124,16 +140,16 @@ class Ball(pygame.sprite.Sprite):
     def changeDirection(self):
         if self.rect.y < 0 and self.direction == UL:
             self.direction = DL
-            musicPlayPlop()
+            #musicPlayPlop()
         if self.rect.y < 0 and self.direction == UR:    # checks if ball touches arena walls and changes its direction accordingly
             self.direction = DR
-            musicPlayPlop()
+            #musicPlayPlop()
         if self.rect.y > GAMEWINDOW_RECT.bottom and self.direction == DL:
             self.direction = UL
-            musicPlayPlop()
+            #musicPlayPlop()
         if self.rect.y > GAMEWINDOW_RECT.bottom and self.direction == DR:
             self.direction = UR
-            musicPlayPlop()
+            #musicPlayPlop()
              
 paddle1 = Paddle(1)
 paddle2 = Paddle(2)
@@ -142,22 +158,22 @@ render_sprites = pygame.sprite.RenderPlain(paddle1, paddle2, ball)              
 
 def paddleCol():
     if pygame.sprite.collide_rect(ball, paddle2):
-        if ball.rect.top >= paddle2.rect.bottom:
+        if ball.rect.top + 20 >= paddle2.rect.bottom:
             if (ball.direction == UR):
-                ball.direction = DR
-            elif (ball.direction == DR):                        # checks for collisions with paddles and changes ball direction
-                ball.direction = UR
+                ball.direction = DL
+        elif ball.rect.bottom <= paddle2.rect.top + 20:
+            if (ball.direction == DR):
+                ball.direction = UL
         else:    
             if (ball.direction == UR):
                 ball.direction = UL
             elif (ball.direction == DR):                        # checks for collisions with paddles and changes ball direction
                 ball.direction = DL
-        musicPlayBeep()
+        #musicPlayBeep()
         if not ball.speed > 20:
             ball.speed +=1                                  # checks for speed, max speed cap = 19, increase speed while not 19
-            paddle1.speed +=1    
+            #paddle1.speed +=1    
     elif pygame.sprite.collide_rect(ball, paddle1):
-        print(ball.rect.bottom , paddle1.rect.top)
         if ball.rect.top + 20 >= paddle1.rect.bottom:
             if (ball.direction == UL):
                 ball.direction = DR
@@ -169,10 +185,10 @@ def paddleCol():
                 ball.direction = UR
             elif (ball.direction == DL):
                 ball.direction = DR
-        musicPlayBeep()
+        #musicPlayBeep()
         if not ball.speed > 20:
             ball.speed +=1
-            paddle1.speed +=1     
+            #paddle1.speed +=1     
 
 
 def musicPlayBeep():
@@ -183,9 +199,20 @@ def musicPlayPlop():
     pygame.mixer.music.play()    
 def musicPlayGoal():
     pygame.mixer.music.load(r'C:\Users\roberts\Desktop\PONG\resources\goal.ogg')    
-    pygame.mixer.music.play()  
-
-basic_font = pygame.font.SysFont("ArcadeClassic", 120)
+    pygame.mixer.music.play() 
+def musicMatchPoint():
+    pygame.mixer.music.load(r'C:\Users\roberts\Desktop\PONG\resources\matchp.wav')    
+    pygame.mixer.music.play()          
+def musicTie():
+    pygame.mixer.music.load(r'C:\Users\roberts\Desktop\PONG\resources\tie.wav')    
+    pygame.mixer.music.play() 
+def player1Wins():
+    pygame.mixer.music.load(r'C:\Users\roberts\Desktop\PONG\resources\player1wins.wav')    
+    pygame.mixer.music.play() 
+def player2Wins():
+    pygame.mixer.music.load(r'C:\Users\roberts\Desktop\PONG\resources\player2wins.wav')    
+    pygame.mixer.music.play()     
+basic_font = pygame.font.SysFont("yugothicregularyugothicuisemilight", 120)
 
 INIT_ERRORS = pygame.init()
 pygame.display.set_caption('PONG')
@@ -205,16 +232,34 @@ def AI():
             paddle2.rect.y = (paddle2.rect.y + paddle2.speed)       
         elif ball.direction == UL or ball.direction == UR:
             paddle2.speed = ball.speed
-            paddle2.rect.y = (paddle2.rect.y - paddle2.speed)                   # basic AI for player 2
+            paddle2.rect.y = (paddle2.rect.y - paddle2.speed)                   # basic AI for player 2             NEEDS REWORK
 
         if paddle2.rect.bottom > WINDOW_HEIGHT - 5:
             paddle2.rect.bottom = 590
         elif paddle2.rect.top < 0:
             paddle2.rect.top = 0    
 
-
-
-
+def gameState():
+    if SCORE_1 > 8 or SCORE_2 > 8:
+        if SCORE_1 > SCORE_2 + 1:
+            print('player1 wins')
+            player1Wins()
+            time.sleep(3)
+            pygame.quit()
+            sys.exit()
+        if SCORE_2 > SCORE_1 + 1:
+            print('player2 wins')
+            player2Wins()
+            time.sleep(3)
+            pygame.quit()
+            sys.exit()
+        if SCORE_1 == SCORE_2 and (ball.rect.x > WINDOW_WIDTH or ball.rect.x < 0):
+            print('tie game')
+            musicTie()
+        if (SCORE_1 > SCORE_2 or SCORE_2 > SCORE_1) and (ball.rect.x > WINDOW_WIDTH or ball.rect.x < 0):
+            print('Game point')
+            musicMatchPoint()
+        
 
 #-=-=-=-= MAIN GAME LOOP -=-=-=-=--==
 #music = pygame.mixer.Sound(r'C:\Users\roberts\Desktop\PONG\resources\music.wav') 
@@ -238,6 +283,7 @@ while True:
         ball.direction = random.randint(0, 1)
         ball.speed = 5
         paddle1.speed = 8
+        paddle2.speed = 8
     # pplayer 1 goal    
     elif (ball.rect.x < 0):
         ball.rect.centerx = GAMEWINDOW_RECT.centerx
@@ -247,6 +293,7 @@ while True:
         ball.direction = random.randint(2, 3)
         ball.speed = 5
         paddle1.speed = 8
+        paddle2.speed = 8
 
     # key logging    
     for event in pygame.event.get():
@@ -290,18 +337,23 @@ while True:
     #paddle2.rect.y = (ball.rect.y - random.randint(80,90))#random.randint(30,40)
                
     #paddle1.rect.centery = ball.rect.centery - 35
-    paddle2.rect.centery = ball.rect.centery - 35
+    #paddle2.rect.centery = ball.rect.centery - 35
     #if paddle1.rect.bottom > 599:
         #paddle1.rect.bottom = 600
-    ball.image.fill(lcol)
-    ball.image_bord.fill(WHITE)    
+    ball.image.fill(WHITE)
+    ball.image_bord.fill(BLACK)    
         
     pygame.draw.line(GAMEWINDOW, WHITE, ((WINDOW_WIDTH//2), WINDOW_HEIGHT), ((WINDOW_WIDTH//2), 0), 6)              # center game line
     paddle1.image.fill(RED)
     paddle2.image.fill(BLUE)
-    GAMEWINDOW.fill(BLACK)                                           # background fill
+    paddle2.image_out.fill(WHITE)
+    paddle1.image_out.fill(WHITE)
+    GAMEWINDOW.fill(lcol)
+    pygame.draw.line(GAMEWINDOW, WHITE, ((WINDOW_WIDTH//2), WINDOW_HEIGHT), ((WINDOW_WIDTH//2), 0), 6)                                           # background fill
     GAMEWINDOW.blit(score_board, score_board_rect) 
-    GAMEWINDOW.blit(ball.image_bord, ball.rect2)                     #scoreboard draw
+    GAMEWINDOW.blit(ball.image_bord, ball.rect2)                          # blits both figures together creating an outline
+    GAMEWINDOW.blit(paddle1.image_out, paddle1.rect2)
+    GAMEWINDOW.blit(paddle2.image_out, paddle2.rect2)                     #scoreboard draw
     #pygame.Color(108, 219, 57)
     render_sprites.draw(GAMEWINDOW)                                         # draws ball and paddles 
     #AI()
@@ -319,7 +371,7 @@ while True:
         SCORE_2 +=1
         musicPlayGoal()
     #print(ball.speed)
-    
+    gameState()
     
     
     pygame.display.set_caption("fps: " + str(round(clock.get_fps(), 0)) + " PONG")
