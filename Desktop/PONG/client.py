@@ -10,11 +10,11 @@ WINDOW_WIDTH = 1024
 
 clock = pygame.time.Clock()
 
-SCORE_1 = 8
-SCORE_2 = 8
+SCORE_1 = 0
+SCORE_2 = 0
 
 ################ TODO ##########
-# CREATE SERIES POINT (PLAYER CAN ONLY WIN IF HES LEADING BY 2)
+# CREATE SERIES POINT (PLAYER CAN ONLY WIN IF HES LEADING BY 2)   DONE
 
 
 
@@ -230,7 +230,7 @@ def AI():
         if ball.direction == DL or ball.direction == DR:
             paddle2.speed = ball.speed
             paddle2.rect.y = (paddle2.rect.y + paddle2.speed)       
-        elif ball.direction == UL or ball.direction == UR:
+        elif ball.direction == UL or ball.direction == UR:                          # NOT WORKING DUE TO CHANGES IN BORDERS
             paddle2.speed = ball.speed
             paddle2.rect.y = (paddle2.rect.y - paddle2.speed)                   # basic AI for player 2             NEEDS REWORK
 
